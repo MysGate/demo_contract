@@ -14,18 +14,21 @@ contract PorterPool is PausableUpgradeable {
     );
 
     event Withdrawn(address indexed to, address indexed token, uint256 amount);
-
     event Paying(address indexed to, address indexed token, uint256 amount);
-
     event Returning(
         address indexed from,
         address indexed token,
         uint256 amount
     );
 
+    event SettedFixedFee(uint256 fixedFee);
+    event SettedFloatFee(uint256 floatFee);
+
     mapping(address => uint256) public liqs; // token => amount
     address public owner;
     address public crossController;
+    uint256 public fixedFee;
+    uint256 public floatFee;
 
     function initialize(
         address _owner,
@@ -84,5 +87,15 @@ contract PorterPool is PausableUpgradeable {
         emit Paying(to, token, amount);
     }
 
-    function setXXFee(uint256 _xxFee) external {}
+    function setFixedFee(uint256 _fixedFee) external onlyOwner {
+        fixedFee = _fixedFee;
+        emit SettedFixedFee(_fixedFee);
+    }
+
+    function setFloatFee(uint256 _floatFee) external onlyOwner {
+        require(_floatFee <= 10000, "");
+        floatFee = _floatFee;
+
+        emit SettedFloatFee(_floatFee);
+    }
 }

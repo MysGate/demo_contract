@@ -11,4 +11,7 @@ interface IPorterPool {
     ) external;
 
     function initialize(address owner, address crossController, bytes memory data) external;
+
+    function fixedFee() external view returns(uint256);
+    function floatFee() external view returns(uint256);
 }
