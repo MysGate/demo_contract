@@ -7,21 +7,33 @@
 const hre = require("hardhat");
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const unlockTime = currentTimestampInSeconds + 60;
 
-  const lockedAmount = hre.ethers.utils.parseEther("0.001");
+  const [deployer] = await ethers.getSigners();
 
-  const Lock = await hre.ethers.getContractFactory("Lock");
-  const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
+  const CrossController = await hre.ethers.getContractFactory("CrossController");
+  const PorterPoolFactory = await hre.ethers.getContractFactory("PorterPoolFactory");
+  const PorterPool = await hre.ethers.getContractFactory("PorterPool");
 
-  await lock.deployed();
+  const CC = await CrossController.deploy();
+  await CC.deployed();
+  await CC.initialize(deployer.address);
 
-  console.log(
-    `Lock with ${ethers.utils.formatEther(
-      lockedAmount
-    )}ETH and unlock timestamp ${unlockTime} deployed to ${lock.address}`
-  );
+  console.log("CC: ", CC.address);
+
+  const PF = await PorterPoolFactory.deploy(CC.address);
+  await PF.deployed();
+
+  console.log("PF: ", PF.address);
+
+  await PF.createPorterPool("0x");
+
+  var porterPoolAddr = await PF.porterPools(deployer.address);
+  console.log("porterPoolAddr: ", porterPoolAddr);
+
+  var porterPool = await PorterPool.attach(porterPoolAddr);
+  await porterPool.setFixedFee("25000");
+  await porterPool.setFloatFee("2"); //0.0002
+  
 }
 
 // We recommend this pattern to be able to use async/await everywhere
