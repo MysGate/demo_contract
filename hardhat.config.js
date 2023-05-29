@@ -29,6 +29,14 @@ module.exports = {
       url: process.env.SCROLLTEST_PROVIDER,
       accounts: [process.env.SCROLLTEST_DEPLOYER],
     },
+    arbtest: {
+      url: process.env.ARBTEST_PROVIDER,
+      accounts: [process.env.ARBTEST_DEPLOYER],
+    },
+    optest: {
+      url: process.env.OPTEST_PROVIDER,
+      accounts: [process.env.OPTEST_DEPLOYER],
+    },
     zkSyncTestnet: {
       url: "https://testnet.era.zksync.dev",
       // ethNetwork: "https://goerli.blockpi.network/v1/rpc/public",
