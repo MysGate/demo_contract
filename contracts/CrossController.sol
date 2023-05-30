@@ -121,7 +121,6 @@ contract CrossController is PausableUpgradeable {
         uint8 srcTokenDecimals,
         uint256 crossAmount
     ) external onlyValidator {
-        require(order.srcAddress == msg.sender, "");
         require(order.destChainId == currentChainId, "");
         bytes32 orderHash = keccak256(
             abi.encodePacked(
