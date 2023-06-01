@@ -24,7 +24,7 @@ async function main() {
 
   await CC.setPorterFactory(PF.address);
   console.log("PF: ", PF.address);
-  await CC.setFloatFee(1);
+  await CC.setFloatFee(2);
 
   await PF.createPorterPool("0x");
 
@@ -32,7 +32,7 @@ async function main() {
   console.log("porterPoolAddr: ", porterPoolAddr);
 
   var porterPool = await PorterPool.attach(porterPoolAddr);
-  await porterPool.setFixedFee("10000");
+  await porterPool.setFixedFee(10000);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
