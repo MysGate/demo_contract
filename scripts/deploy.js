@@ -5,11 +5,10 @@
 // will compile your contracts, add the Hardhat Runtime Environment's members to the
 // global scope, and execute the script.
 const hre = require("hardhat");
+require('@openzeppelin/hardhat-upgrades');
 
 async function main() {
-
   const [deployer] = await ethers.getSigners();
-
   const CrossController = await hre.ethers.getContractFactory("CrossController");
   const PorterPoolFactory = await hre.ethers.getContractFactory("PorterPoolFactory");
   const PorterPool = await hre.ethers.getContractFactory("PorterPool");
@@ -23,7 +22,9 @@ async function main() {
   const PF = await PorterPoolFactory.deploy(CC.address);
   await PF.deployed();
 
+  await CC.setPorterFactory(PF.address);
   console.log("PF: ", PF.address);
+  await CC.setFloatFee(1);
 
   await PF.createPorterPool("0x");
 
@@ -31,9 +32,7 @@ async function main() {
   console.log("porterPoolAddr: ", porterPoolAddr);
 
   var porterPool = await PorterPool.attach(porterPoolAddr);
-  await porterPool.setFixedFee("25000");
-  await porterPool.setFloatFee("2"); //0.0002
-  
+  await porterPool.setFixedFee("10000");
 }
 
 // We recommend this pattern to be able to use async/await everywhere

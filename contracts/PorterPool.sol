@@ -22,13 +22,11 @@ contract PorterPool is PausableUpgradeable {
     );
 
     event SettedFixedFee(uint256 fixedFee);
-    event SettedFloatFee(uint256 floatFee);
 
     mapping(address => uint256) public liqs; // token => amount
     address public owner;
     address public crossController;
     uint256 public fixedFee;
-    uint256 public floatFee;
 
     function initialize(
         address _owner,
@@ -90,12 +88,5 @@ contract PorterPool is PausableUpgradeable {
     function setFixedFee(uint256 _fixedFee) external onlyOwner {
         fixedFee = _fixedFee;
         emit SettedFixedFee(_fixedFee);
-    }
-
-    function setFloatFee(uint256 _floatFee) external onlyOwner {
-        require(_floatFee <= 10000, "");
-        floatFee = _floatFee;
-
-        emit SettedFloatFee(_floatFee);
     }
 }
