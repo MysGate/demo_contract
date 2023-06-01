@@ -5,7 +5,6 @@
 // will compile your contracts, add the Hardhat Runtime Environment's members to the
 // global scope, and execute the script.
 const hre = require("hardhat");
-require('@openzeppelin/hardhat-upgrades');
 
 async function main() {
   const [deployer] = await ethers.getSigners();
