@@ -14,7 +14,7 @@ module.exports = {
     compilerSource: "binary",
     settings: {},
   },
-  defaultNetwork: "zkSyncTestnet",
+  defaultNetwork: "arbtest",
   solidity: {
     version: "0.8.12",
     settings: {

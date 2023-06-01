@@ -20,4 +20,8 @@ contract PorterPoolFactory {
         porterPools[msg.sender] = address(porterPool);
         emit CreatePorterPool(msg.sender, address(porterPool));
     }
+
+    function getPorterPool(address porter) external view returns (address) {
+        return porterPools[porter];
+    }
 }
