@@ -6,6 +6,7 @@ import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 
 import "./interfaces/IPorterFactory.sol";
 import "./interfaces/IPorterPool.sol";
+import "./interfaces/IBridgeVerifier.sol";
 import "./interfaces/IERC20UpgradeableExtended.sol";
 
 
@@ -33,6 +34,8 @@ contract CrossController is PausableUpgradeable {
     );
     event SettedFloatFee(uint256 floatFee);
     event SettedPorterFactory(address _factory);
+    event SettedZkVerifier(address _zkVerifier);
+    event EnabledZkVerifier(bool _enable);
 
     struct Order {
         uint256 orderId; // unique required
@@ -46,8 +49,14 @@ contract CrossController is PausableUpgradeable {
         address porter;
     }
 
+    struct Proof {
+        uint[2] a;
+        uint[2][2] b;
+        uint[2] c;
+    }
+
     struct Receipt {
-        bytes32 proof;
+        bytes32 proofHash;
         bytes32 destTxHash;
     }
 
@@ -59,9 +68,10 @@ contract CrossController is PausableUpgradeable {
     mapping(bytes32 => bool) public pendingOrders;
     mapping(bytes32 => bool) public paidOrders;
     address public owner;
-    address public porterFactory; 
+    address public porterFactory;
+    bool    public enable;
+    address public zkVerifier;
 
-    //TODO: multi validators
     modifier onlyOwner() {
         require(msg.sender == owner, "");
         _;
@@ -178,8 +188,6 @@ contract CrossController is PausableUpgradeable {
         pendingOrders[orderHash] = false;
         receipts[orderHash] = receipt;
         
-
-        //TODO: verifier.sol
         IERC20Upgradeable(order.srcToken).approve(
             porterPool,
             order.srcAmount
@@ -191,6 +199,55 @@ contract CrossController is PausableUpgradeable {
         );
 
         emit CommitReceipt(msg.sender, orderHash, receipt);
+    }
+
+    function commitReceiptWithZK(
+        Proof calldata proof,
+        uint[2] memory input,
+        bytes32 orderHash,
+        bytes32 destTxHash
+    ) external onlyOwner {
+        require(enable, "");
+        require(zkVerifier != address(0), "");
+        require(pendingOrders[orderHash], "");
+        Order memory order = orders[orderHash];
+        address porterPool = IPorterFactory(porterFactory).getPorterPool(order.porter);
+        require(porterPool != address(0), "");
+        
+
+        pendingOrders[orderHash] = false;
+        require(IBridgeVerifier(zkVerifier).verify(proof.a, proof.b, proof.c, input), "");
+        
+         bytes32 proofHash = keccak256(
+            abi.encodePacked(
+                proof.a,
+                proof.b,
+                proof.c
+            )
+        );
+        
+        Receipt memory receipt = Receipt({
+            proofHash: proofHash,
+            destTxHash: destTxHash
+        });
+
+        receipts[orderHash] = receipt;
+        
+        IERC20Upgradeable(order.srcToken).approve(
+            porterPool,
+            order.srcAmount
+        );
+        IPorterPool(porterPool).returning(
+            address(this),
+            order.srcToken,
+            order.srcAmount
+        );
+
+        emit CommitReceipt(msg.sender, orderHash, receipt);
+    }
+    
+    function addCommitment(uint256 _commitment) external onlyOwner {
+        IBridgeVerifier(zkVerifier).addCommitment(_commitment);
     }
     
     function setFloatFee(uint256 _floatFee) external onlyOwner {
@@ -205,5 +262,19 @@ contract CrossController is PausableUpgradeable {
         porterFactory = _factory;
 
         emit SettedPorterFactory(_factory);
+    }
+
+    function setZkVerifier(address _verifier) external onlyOwner {
+        require(_verifier != address(0), "");
+        zkVerifier = _verifier;
+
+        emit SettedZkVerifier(_verifier);
+    }
+
+    function enableZkVerifier(bool _enable) external onlyOwner {
+        require(enable != _enable, "");
+        enable = _enable;
+
+        emit EnabledZkVerifier(_enable);
     }
 }
