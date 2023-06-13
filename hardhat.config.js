@@ -2,6 +2,7 @@ require("@nomicfoundation/hardhat-toolbox");
 require("@matterlabs/hardhat-zksync-deploy");
 require("@matterlabs/hardhat-zksync-solc");
 require("@matterlabs/hardhat-zksync-verify");
+require("@openzeppelin/hardhat-upgrades");
 
 require("dotenv").config({
   path: require("path").join(__dirname, ".env"),
