@@ -177,39 +177,38 @@ export async function getRoot(bridgeInstance) {
   return root.toString()
 }
 
-export async function generateProof(contract, poseidonHash, cmtIdx) {
-  const nullifierHash = poseidonHash([cmtIdx, cmtIdx])
-  let [merklePath, path2RootPos2] = await getMerkleProof(contract, cmtIdx)
-  let root = nullifierHash;
-  for (var i = 0; i < 8; i++) {
-      if (path2RootPos2[i] == 1) {
-          root = poseidonHash([root, merklePath[i]])
-      } else {
-          root = poseidonHash([merklePath[i], root])
-      }
-      // console.log("Circuit", poseidonHash.F.toString(root), merklePath[i])
-  }
-  // expect(poseidonHash.F.toString(root)).to.eq(await getRoot(contract));
-  // console.log("YES!!!!!!!!!", poseidonHash.F.toString(root), root, await getRoot(contract), cmtIdx);
-  let input = {
-      "root": poseidonHash.F.toString(root),
-      "nullifierHash": poseidonHash.F.toString(nullifierHash),
-      "paths2_root": merklePath,
-      "paths2_root_pos": path2RootPos2
-  }
-
-  let wasm = path.join(__dirname, "../circuit/main_js", "main.wasm");
-  let zkey = path.join(__dirname, "../circuit", "circuit_final.zkey");
-  const wc = require("../circuit/main_js/witness_calculator");
-  const buffer = fs.readFileSync(wasm);
-  const witnessCalculator = await wc(buffer);
-
-  const witnessBuffer = await witnessCalculator.calculateWTNSBin(
-      input,
-      0
-  );
-  const { proof, publicSignals } = await snarkjs.groth16.prove(zkey, witnessBuffer);
-  const { a, b, c } = parseProof(proof);
-  return [a, b, c, publicSignals]
+export async function generateProof(contract, poseidonHash, cmtIdx, param) {
+    let [merklePath, path2RootPos2] = await getMerkleProof(contract, cmtIdx)
+    let root = param;
+    for (var i = 0; i < 8; i++) {
+        if (path2RootPos2[i] == 1) {
+            root = poseidonHash([root, merklePath[i]])
+        } else {
+            root = poseidonHash([merklePath[i], root])
+        }
+        // console.log("Circuit", poseidonHash.F.toString(root), merklePath[i])
+    }
+    // expect(poseidonHash.F.toString(root)).to.eq(await getRoot(contract));
+    // console.log("YES!!!!!!!!!", poseidonHash.F.toString(root), root, await getRoot(contract), cmtIdx);
+    let input = {
+        "root": poseidonHash.F.toString(root),
+        "nullifierHash": param,
+        "paths2_root": merklePath,
+        "paths2_root_pos": path2RootPos2
+    }
+  
+    let wasm = path.join(__dirname, "../circuit/main_js", "main.wasm");
+    let zkey = path.join(__dirname, "../circuit", "circuit_final.zkey");
+    const wc = require("../circuit/main_js/witness_calculator");
+    const buffer = fs.readFileSync(wasm);
+    const witnessCalculator = await wc(buffer);
+  
+    const witnessBuffer = await witnessCalculator.calculateWTNSBin(
+        input,
+        0
+    );
+    const { proof, publicSignals } = await snarkjs.groth16.prove(zkey, witnessBuffer);
+    const { a, b, c } = parseProof(proof);
+    return [a, b, c, publicSignals]
 }
 

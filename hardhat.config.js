@@ -25,6 +25,9 @@ module.exports = {
       },
     },
   },
+  mocha: {
+    timeout: 100000000,
+  },
   networks: {
     scrolltest: {
       url: process.env.SCROLLTEST_PROVIDER,

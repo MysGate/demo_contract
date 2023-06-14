@@ -2,7 +2,7 @@ const { expect, assert } = require("chai");
 const {ethers, upgrades} = require("hardhat");
 const path = require("path");
 const cls = require("circomlibjs");
-// import * as utils from "../src/utils";
+import * as utils from "../src/utils";
 
 describe("zkbridge", function () { 
     it("Should verify the proof", async function () { 
@@ -52,35 +52,70 @@ describe("zkbridge", function () {
       let bridge = await bridgeFactory.deploy(poseidonContract.address, CC.address);
       await bridge.deployed();
       console.log("Bridge Addr: ", bridge.address);
+      await CC.setZkVerifier(bridge.address); 
+      expect(await CC.zkVerifier()).to.equal(bridge.address); 
 
       // token
-      const supply = 100000000000000000000000000n;
+      const supply = ethers.utils.parseUnits("100000000","ether")
       const tokenMock = await ethers.getContractFactory("TokenMock"); 
       const mysUSDT = await upgrades.deployProxy(tokenMock, ['mys USDT', 'mysUSDT', supply]); 
       await mysUSDT.deployed(); 
       console.log("mysUSDT deployed to:", mysUSDT.address); 
       
       // porter transfer 90token to bob
-      const tx = await mysUSDT.transfer(bob.address, 90000000000000000000n);
-      expect(await mysUSDT.balanceOf(bob.address)).to.equal(90000000000000000000n); 
-      // generate proof verify it
+      var amount = ethers.utils.parseUnits("90","ether")
+      const tx = await mysUSDT.transfer(bob.address, amount);
       await tx.wait();
+      expect(await mysUSDT.balanceOf(bob.address)).to.equal(amount); 
+      // generate proof verify it
       console.log("mysUSDT transfer to bob tx:", tx.hash);
-    //   const nullifierHash = tx.hash;
-    //   await CC.addCommitment(tx.hash);
-
+      console.log("===addCommitment===")
+      console.log("root before operation: ", await utils.getRoot(bridge))
+      const txadd = await CC.addCommitment(tx.hash);
+      await txadd.wait();
+      console.log("root after operation: ", await utils.getRoot(bridge))
+      const path2RootPos = [0, 0, 0, 0, 0, 0, 0, 0]
+      const cmtIdx = utils.Bits2Num(8, path2RootPos)
+      console.log("cmtIdx", cmtIdx);
+      const [a, b, c, publicInfo] = await utils.generateProof(bridge, poseidonHash, cmtIdx, tx.hash);
+      console.log("===verify===", publicInfo);
+      expect(await(await bridge.verify(a, b, c, publicInfo))).to.equal(true); 
 
       // porter transfer 100token to bob1
-    //   const tx1 = await mysUSDT.transfer(bob1.address, 100000000000000000000n);
-    //   expect(await mysUSDT.balanceOf(bob1.address)).to.equal(100000000000000000000n); 
-    //   await tx1.wait();
-    //   console.log("mysUSDT transfer to bob1 tx:", tx1.hash);
+      amount = ethers.utils.parseUnits("100","ether")
+      const tx1 = await mysUSDT.transfer(bob1.address, amount);
+      expect(await mysUSDT.balanceOf(bob1.address)).to.equal(amount); 
+      await tx1.wait();
+      console.log("mysUSDT transfer to bob1 tx:", tx1.hash);
+      console.log("===addCommitment===")
+      console.log("root before operation: ", await utils.getRoot(bridge))
+      const txadd1 = await CC.addCommitment(tx1.hash);
+      await txadd1.wait();
+      console.log("root after operation: ", await utils.getRoot(bridge))
+      const path2RootPos1 = [1, 0, 0, 0, 0, 0, 0, 0]
+      const cmtIdx1 = utils.Bits2Num(8, path2RootPos1)
+      console.log("cmtIdx", cmtIdx1);
+      const [a1, b1, c1, publicInfo1] = await utils.generateProof(bridge, poseidonHash, cmtIdx1, tx1.hash);
+      console.log("===verify===", publicInfo1);
+      expect(await(await bridge.verify(a1, b1, c1, publicInfo1))).to.equal(true); 
 
-    //   // porter transfer 800token to bob2
-    //   const tx2 = await mysUSDT.transfer(bob2.address, 800000000000000000000n);
-    //   expect(await mysUSDT.balanceOf(bob2.address)).to.equal(800000000000000000000n); 
-    //   // generate proof verify it
-    //   await tx2.wait();
-    //   console.log("mysUSDT transfer to bob2 tx:", tx2.hash);
+      // porter transfer 800token to bob2
+      amount = ethers.utils.parseUnits("80","ether")
+      const tx2 = await mysUSDT.transfer(bob2.address, amount);
+      expect(await mysUSDT.balanceOf(bob2.address)).to.equal(amount); 
+      // generate proof verify it
+      await tx2.wait();
+      console.log("mysUSDT transfer to bob2 tx:", tx2.hash);
+      console.log("===addCommitment===")
+      console.log("root before operation: ", await utils.getRoot(bridge))
+      const txadd2 = await CC.addCommitment(tx2.hash);
+      await txadd2.wait();
+      console.log("root after operation: ", await utils.getRoot(bridge))
+      const path2RootPos2 = [0, 1, 0, 0, 0, 0, 0, 0]
+      const cmtIdx2 = utils.Bits2Num(8, path2RootPos2)
+      console.log("cmtIdx", cmtIdx2);
+      const [a2, b2, c2, publicInfo2] = await utils.generateProof(bridge, poseidonHash, cmtIdx2, tx2.hash);
+      console.log("===verify===", publicInfo2);
+      expect(await(await bridge.verify(a2, b2, c2, publicInfo2))).to.equal(true); 
     }); 
   }); 
