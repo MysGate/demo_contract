@@ -12,5 +12,5 @@ yarn hardhat deploy-zksync --script ./deploy/deploy_zks.js
 npx hardhat test ./test/CrossController.test.js
 
 ## test zkBridge
-tsc ./test/zkbridge.test.ts
+tsc ./test/zkbridge.test.ts   
 npx hardhat test ./test/zkbridge.test.js
