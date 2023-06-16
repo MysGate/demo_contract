@@ -73,14 +73,6 @@ function getMerkleProof(bridgeInstance, leaf_index) {
                     return [4 /*yield*/, bridgeInstance.getMerkleProof(leaf_index)];
                 case 1:
                     _a = _b.sent(), proof = _a[0], proof2 = _a[1];
-                    console.log("proof:", proof);
-                    console.log("proof2:", proof2);
-                    //   let receipt = await tx.wait()
-                    //   let abi = ["event MerkleProof(uint256[8] , uint256[8] )"]
-                    //   var iface = new ethers.utils.Interface(abi);
-                    //   let logs = iface.parseLog(receipt.events[0]);
-                    //   let proof = logs.args[0]
-                    //   let proof2 = logs.args[1]
                     for (i = 0; i < proof.length; i++) {
                         t = proof[i];
                         res.push(t.toString());
