@@ -6,6 +6,6 @@ artifacts
 artifacts-zk
 cache-zk
 merged/
+.DS_Store
 
-utils.js
-zkbridge.test.js
+abi/

@@ -36,15 +36,7 @@ export function Bits2Num(n, in1) {
 export async function getMerkleProof(bridgeInstance, leaf_index) {
   let res = []
   let addressBits = []
-  let tx = await bridgeInstance.getMerkleProof(leaf_index);
-  let receipt = await tx.wait()
-
-  let abi = ["event MerkleProof(uint256[8] , uint256[8] )"]
-  var iface = new ethers.utils.Interface(abi);
-  let logs = iface.parseLog(receipt.events[0]);
-  let proof = logs.args[0]
-  let proof2 = logs.args[1]
-
+  let [proof, proof2] = await bridgeInstance.getMerkleProof(leaf_index);
   for (let i = 0; i < proof.length; i++) {
       let t = proof[i];
       res.push(t.toString())

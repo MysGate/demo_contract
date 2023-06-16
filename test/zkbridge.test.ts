@@ -36,9 +36,6 @@ describe("zkbridge", function () {
       await porterPool.setFixedFee(10000);
       expect(await porterPool.fixedFee()).to.equal(10000); 
 
-      var porterPool = await PorterPool.attach(porterPoolAddr);
-      await porterPool.setFixedFee(10000);
-
       // zk
       const poseidonHash = await cls.buildPoseidonReference();
       const C6 = new ethers.ContractFactory(
@@ -54,6 +51,9 @@ describe("zkbridge", function () {
       console.log("Bridge Addr: ", bridge.address);
       await CC.setZkVerifier(bridge.address); 
       expect(await CC.zkVerifier()).to.equal(bridge.address); 
+      
+      await CC.enableZkVerifier(true); 
+      expect(await CC.enable()).to.equal(true);
 
       // token
       const supply = ethers.utils.parseUnits("100000000","ether")
@@ -115,7 +115,7 @@ describe("zkbridge", function () {
       const cmtIdx2 = utils.Bits2Num(8, path2RootPos2)
       console.log("cmtIdx", cmtIdx2);
       const [a2, b2, c2, publicInfo2] = await utils.generateProof(bridge, cmtIdx2, tx2.hash);
-      console.log("===verify===", publicInfo2);
+      console.log("===verify===", a2, b2, c2, publicInfo2);
       expect(await(await bridge.verify(a2, b2, c2, publicInfo2))).to.equal(true); 
     }); 
   }); 
