@@ -44,7 +44,7 @@ var utils = require("../src/utils");
 describe("zkbridge", function () {
     it("Should verify the proof", function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, porter, bob, bob1, bob2, addrs, CrossController, PorterPoolFactory, PorterPool, CC, PF, _b, _c, porterPoolAddr, porterPool, _d, poseidonHash, C6, poseidonContract, bridgeFactory, bridge, _e, _f, supply, tokenMock, mysUSDT, amount, tx, _g, _h, _j, _k, txadd, _l, _m, _o, path2RootPos, cmtIdx, _p, a, b, c, publicInfo, _q, tx1, _r, _s, _t, _u, txadd1, _v, _w, _x, path2RootPos1, cmtIdx1, _y, a1, b1, c1, publicInfo1, _z, tx2, _0, _1, _2, _3, txadd2, _4, _5, _6, path2RootPos2, cmtIdx2, _7, a2, b2, c2, publicInfo2, _8;
+            var _a, porter, bob, bob1, bob2, addrs, CrossController, PorterPoolFactory, PorterPool, CC, PF, _b, _c, porterPoolAddr, porterPool, _d, poseidonHash, C6, poseidonContract, bridgeFactory, bridge, _e, _f, supply, tokenMock, mysUSDT, amount, tx, _g, _h, _j, _k, txadd, _l, _m, _o, next, cmtIdx, _p, a, b, c, publicInfo, _q, tx1, _r, _s, _t, _u, txadd1, _v, _w, _x, next1, cmtIdx1, _y, a1, b1, c1, publicInfo1, _z, tx2, _0, _1, _2, _3, txadd2, _4, _5, _6, next2, cmtIdx2, _7, a2, b2, c2, publicInfo2, _8;
             return __generator(this, function (_9) {
                 switch (_9.label) {
                     case 0: return [4 /*yield*/, ethers.getSigners()];
@@ -180,72 +180,78 @@ describe("zkbridge", function () {
                         return [4 /*yield*/, bridge.getRoot()];
                     case 37:
                         _m.apply(_l, _o.concat([_9.sent()]));
-                        path2RootPos = [0, 0, 0, 0, 0, 0, 0, 0];
-                        cmtIdx = utils.Bits2Num(8, path2RootPos);
+                        return [4 /*yield*/, bridge.getNextCommitmentIdx()];
+                    case 38:
+                        next = _9.sent();
+                        console.log("next cul CommitmentIdx: ", next);
+                        cmtIdx = next - 1;
                         console.log("cmtIdx", cmtIdx);
                         return [4 /*yield*/, utils.generateProof(bridge, cmtIdx, tx.hash)];
-                    case 38:
+                    case 39:
                         _p = _9.sent(), a = _p[0], b = _p[1], c = _p[2], publicInfo = _p[3];
                         console.log("===verify===", publicInfo);
                         _q = expect;
                         return [4 /*yield*/, bridge.verify(a, b, c, publicInfo)];
-                    case 39: return [4 /*yield*/, (_9.sent())];
-                    case 40:
+                    case 40: return [4 /*yield*/, (_9.sent())];
+                    case 41:
                         _q.apply(void 0, [_9.sent()]).to.equal(true);
                         // porter transfer 100token to bob1
                         amount = ethers.utils.parseUnits("100", "ether");
                         return [4 /*yield*/, mysUSDT.transfer(bob1.address, amount)];
-                    case 41:
+                    case 42:
                         tx1 = _9.sent();
                         _r = expect;
                         return [4 /*yield*/, mysUSDT.balanceOf(bob1.address)];
-                    case 42:
+                    case 43:
                         _r.apply(void 0, [_9.sent()]).to.equal(amount);
                         return [4 /*yield*/, tx1.wait()];
-                    case 43:
+                    case 44:
                         _9.sent();
                         console.log("mysUSDT transfer to bob1 tx:", tx1.hash);
                         console.log("===addCommitment===");
                         _t = (_s = console).log;
                         _u = ["root before operation: "];
                         return [4 /*yield*/, bridge.getRoot()];
-                    case 44:
+                    case 45:
                         _t.apply(_s, _u.concat([_9.sent()]));
                         return [4 /*yield*/, CC.addCommitment(tx1.hash)];
-                    case 45:
+                    case 46:
                         txadd1 = _9.sent();
                         return [4 /*yield*/, txadd1.wait()];
-                    case 46:
+                    case 47:
                         _9.sent();
                         _w = (_v = console).log;
                         _x = ["root after operation: "];
                         return [4 /*yield*/, bridge.getRoot()];
-                    case 47:
+                    case 48:
                         _w.apply(_v, _x.concat([_9.sent()]));
-                        path2RootPos1 = [1, 0, 0, 0, 0, 0, 0, 0];
-                        cmtIdx1 = utils.Bits2Num(8, path2RootPos1);
+                        return [4 /*yield*/, bridge.getNextCommitmentIdx()];
+                    case 49:
+                        next1 = _9.sent();
+                        console.log("next cul CommitmentIdx: ", next1);
+                        cmtIdx1 = next1 - 1;
                         console.log("cmtIdx", cmtIdx1);
                         return [4 /*yield*/, utils.generateProof(bridge, cmtIdx1, tx1.hash)];
-                    case 48:
+                    case 50:
                         _y = _9.sent(), a1 = _y[0], b1 = _y[1], c1 = _y[2], publicInfo1 = _y[3];
                         console.log("===verify===", publicInfo1);
                         _z = expect;
                         return [4 /*yield*/, bridge.verify(a1, b1, c1, publicInfo1)];
-                    case 49: return [4 /*yield*/, (_9.sent())];
-                    case 50:
+                    case 51: return [4 /*yield*/, (_9.sent())];
+                    case 52:
                         _z.apply(void 0, [_9.sent()]).to.equal(true);
                         // porter transfer 800token to bob2
                         amount = ethers.utils.parseUnits("80", "ether");
                         return [4 /*yield*/, mysUSDT.transfer(bob2.address, amount)];
-                    case 51:
+                    case 53:
                         tx2 = _9.sent();
                         _0 = expect;
                         return [4 /*yield*/, mysUSDT.balanceOf(bob2.address)];
-                    case 52:
+                    case 54:
                         _0.apply(void 0, [_9.sent()]).to.equal(amount);
                         // generate proof verify it
                         return [4 /*yield*/, tx2.wait()];
-                    case 53:
+                    case 55:
                         // generate proof verify it
                         _9.sent();
                         console.log("mysUSDT transfer to bob2 tx:", tx2.hash);
@@ -253,30 +259,33 @@ describe("zkbridge", function () {
                         _2 = (_1 = console).log;
                         _3 = ["root before operation: "];
                         return [4 /*yield*/, bridge.getRoot()];
-                    case 54:
+                    case 56:
                         _2.apply(_1, _3.concat([_9.sent()]));
                         return [4 /*yield*/, CC.addCommitment(tx2.hash)];
-                    case 55:
+                    case 57:
                         txadd2 = _9.sent();
                         return [4 /*yield*/, txadd2.wait()];
-                    case 56:
+                    case 58:
                         _9.sent();
                         _5 = (_4 = console).log;
                         _6 = ["root after operation: "];
                         return [4 /*yield*/, bridge.getRoot()];
-                    case 57:
+                    case 59:
                         _5.apply(_4, _6.concat([_9.sent()]));
-                        path2RootPos2 = [0, 1, 0, 0, 0, 0, 0, 0];
-                        cmtIdx2 = utils.Bits2Num(8, path2RootPos2);
+                        return [4 /*yield*/, bridge.getNextCommitmentIdx()];
+                    case 60:
+                        next2 = _9.sent();
+                        console.log("next cul CommitmentIdx: ", next2);
+                        cmtIdx2 = next2 - 1;
                         console.log("cmtIdx", cmtIdx2);
                         return [4 /*yield*/, utils.generateProof(bridge, cmtIdx2, tx2.hash)];
-                    case 58:
+                    case 61:
                         _7 = _9.sent(), a2 = _7[0], b2 = _7[1], c2 = _7[2], publicInfo2 = _7[3];
                         console.log("===verify===", a2, b2, c2, publicInfo2);
                         _8 = expect;
                         return [4 /*yield*/, bridge.verify(a2, b2, c2, publicInfo2)];
-                    case 59: return [4 /*yield*/, (_9.sent())];
-                    case 60:
+                    case 62: return [4 /*yield*/, (_9.sent())];
+                    case 63:
                         _8.apply(void 0, [_9.sent()]).to.equal(true);
                         return [2 /*return*/];
                 }
