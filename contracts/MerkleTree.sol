@@ -88,10 +88,6 @@ contract MerkleTree {
     function getRoot() public view returns(uint256 root) {
         root = MT.leaves2[tree_depth][0];
     }
-    
-    function getNextCommitmentIdx() public view returns(uint256 cur) {
-        cur = MT.cur;
-    }
 }
 
 
