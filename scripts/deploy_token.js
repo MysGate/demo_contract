@@ -8,7 +8,8 @@ const {ethers, upgrades} = require("hardhat");
 
 async function main() {
   const [deployer] = await ethers.getSigners();
-  const supply = 100000000000000000000000000n;
+  const supply = ethers.utils.parseUnits("100000000","ether"); 
+  
   const tokenMock = await ethers.getContractFactory("TokenMock"); 
   const mysUSDT = await upgrades.deployProxy(tokenMock, ['mys USDT', 'mysUSDT', supply]); 
   await mysUSDT.deployed(); 
